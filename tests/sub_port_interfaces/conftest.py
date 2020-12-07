@@ -8,6 +8,9 @@ from tests.common import config_reload
 from sub_ports_helpers import DUT_TMP_DIR
 from sub_ports_helpers import TEMPLATE_DIR
 from sub_ports_helpers import SUB_PORTS_TEMPLATE
+from sub_ports_helpers import ACL_RULE_TEMPLATE
+from sub_ports_helpers import ACL_RULES_LIST
+from sub_ports_helpers import ACL_TABLE_GLOBAL_NAME
 
 
 @pytest.fixture
@@ -117,6 +120,27 @@ def apply_config_on_the_ptf(define_sub_ports_configuration, ptfhost):
 
     yield
     reload_ptf_config(ptfhost, sub_ports)
+
+
+@pytest.fixture(params=["ingress", "egress"])
+def acl_table_config(request, define_sub_ports_configuration, duthost):
+    """
+    """
+    sub_ports = define_sub_ports_configuration['sub_ports']
+
+    acl_rule_vars = {
+        'acl_table_name': ACL_TABLE_GLOBAL_NAME,
+        'stage': request.param,
+        'ports_assigned': list(sub_ports.keys()),
+        'acl_rules': [ACL_RULES_LIST[0]] if request.param == "egress" else [ACL_RULES_LIST[1]]
+    }
+
+    acl_rule_config_path = os.path.join(DUT_TMP_DIR, ACL_RULE_TEMPLATE)
+    config_template = jinja2.Template(open(os.path.join(TEMPLATE_DIR, ACL_RULE_TEMPLATE)).read())
+
+    duthost.command("mkdir -p {}".format(DUT_TMP_DIR))
+    duthost.copy(content=config_template.render(acl_rule_vars), dest=acl_rule_config_path)
+    duthost.command('sonic-cfggen -j {} --write-to-db'.format(acl_rule_config_path))
 
 
 def reload_dut_config(duthost):

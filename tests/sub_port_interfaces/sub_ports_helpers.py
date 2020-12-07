@@ -1,4 +1,4 @@
-import os
+tests/sub_port_interfaces/sub_ports_helpers.pyimport os
 
 import ptf.testutils as testutils
 import ptf.mask as mask
@@ -8,9 +8,15 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 DUT_TMP_DIR = os.path.join('tmp', os.path.basename(BASE_DIR))
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 SUB_PORTS_TEMPLATE = 'sub_port_config.j2'
+ACL_RULE_TEMPLATE = 'acl_rule_config.j2'
 ACTION_FWD = 'fwd'
 ACTION_DROP = 'drop'
+ACL_TABLE_GLOBAL_NAME = "test_acl_table"
 
+ACL_RULES_LIST = [
+    {"priority": "10", "action": "DROP", "rule_keys": ("ICMP_TYPE", "0")},
+    {"priority": "10", "action": "DROP", "rule_keys": ("ICMP_TYPE", "8")},
+]
 
 def create_packet(eth_dst, eth_src, ip_dst, ip_src, vlan_vid, dl_vlan_enable=False, icmp_type=8):
     """

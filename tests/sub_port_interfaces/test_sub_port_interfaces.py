@@ -1,4 +1,4 @@
-"""
+tests/sub_port_interfaces/test_sub_port_interfaces.py"""
 Tests sub-port interfaces in SONiC.
 """
 
@@ -55,6 +55,21 @@ class TestSubPorts(object):
             7.) Clear configuration of sub-ports on the DUT.
 
         Pass Criteria: PTF doesn't get ICMP reply packet from DUT.
+        """
+        sub_ports = apply_config_on_the_dut['sub_ports']
+
+        for sub_port, value in sub_ports.items():
+            generate_and_verify_traffic(duthost=duthost,
+                                        ptfadapter=ptfadapter,
+                                        src_port=value['neighbor_port'],
+                                        ip_src=value['neighbor_ip'],
+                                        dst_port=sub_port,
+                                        ip_dst=value['ip'],
+                                        pkt_action='drop')
+
+
+    def test_acl_bound(self, duthost, ptfadapter, apply_config_on_the_dut, apply_config_on_the_ptf, acl_table_config):
+        """
         """
         sub_ports = apply_config_on_the_dut['sub_ports']
 

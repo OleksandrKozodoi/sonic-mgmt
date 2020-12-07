@@ -1,0 +1,26 @@
+{
+    "ACL_TABLE": {
+        "{{ acl_table_name }}": {
+            "stage": "{{ stage }}",
+            "type": "L3",
+            "policy_desc": "test_policy",
+            "ports": [
+{% for port in ports_assigned %}
+            "{{ port }}"{% if not loop.last %},
+{% endif %}{% endfor %}
+            ]
+        }
+    },
+
+{% for rule in acl_rules %}
+    "ACL_RULE": {
+        "{{ acl_table_name }}|{{ loop.index }}": {
+            "PRIORITY": "{{ rule.priority }}",
+            "PACKET_ACTION": "{{ rule.action }}",
+            "{{ rule.rule_keys[0] }}": "{{ rule.rule_keys[1] }}"
+        }
+    }
+{% if not loop.last %}
+{% endif %}{% endfor %}
+
+}
